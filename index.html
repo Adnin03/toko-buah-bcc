@@ -263,32 +263,22 @@
             var toast = document.getElementById("toast-box");
             toast.innerText = pesan; 
             toast.className = "show"; 
-            
-            setTimeout(function(){ 
-                toast.className = toast.className.replace("show", ""); 
-            }, 3000);
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
         }
     
-        // --- 1. FUNGSI MENAMBAH KE KERANJANG ---
+        // --- 1. TAMBAH KE KERANJANG ---
         function tambahKeKeranjang(nama, hargaText) {
             let hargaAngka = parseInt(hargaText.replace(/[^0-9]/g, ''));
             let produkAda = keranjang.find(item => item.nama === nama);
     
-            if (produkAda) {
-                produkAda.qty++; 
-            } else {
-                keranjang.push({
-                    nama: nama,
-                    harga: hargaAngka,
-                    qty: 1
-                });
-            }
+            if (produkAda) { produkAda.qty++; } 
+            else { keranjang.push({ nama: nama, harga: hargaAngka, qty: 1 }); }
     
             updateTampilanKeranjang(); 
             showToast("✅ Berhasil menambahkan " + nama + " ke keranjang!");
         }
     
-        // --- 2. FUNGSI UPDATE TAMPILAN KERANJANG ---
+        // --- 2. UPDATE TAMPILAN KERANJANG (POPUP) ---
         function updateTampilanKeranjang() {
             let listHtml = "";
             let totalBelanja = 0;
@@ -298,20 +288,21 @@
                 let subtotal = item.harga * item.qty;
                 totalBelanja += subtotal;
                 totalItem += item.qty;
+                
+                // --- LOGIKA SATUAN (POPUP) ---
+                let namaKecil = item.nama.toLowerCase(); // Ubah nama jadi huruf kecil semua biar mudah dicek
+                let satuan = "kg"; // Default kg
+                
+                // Cek apakah mengandung kata-kata ini?
+                if(namaKecil.includes("anggur") || namaKecil.includes("kelengkeng") || namaKecil.includes("belimbing")) {
+                    satuan = "pcs";
+                }
     
                 listHtml += `
                     <li class="cart-item">
-                        <div>
-                            <strong>${item.nama}</strong><br>
-                            <small>Rp ${item.harga.toLocaleString()} x ${item.qty}</small>
-                        </div>
-                        <div>
-                            <strong>Rp ${subtotal.toLocaleString()}</strong>
-                            <br>
-                            <small style="color:red; cursor:pointer;" onclick="hapusItem(${index})">[Hapus]</small>
-                        </div>
-                    </li>
-                `;
+                        <div><strong>${item.nama}</strong><br><small>Rp ${item.harga.toLocaleString()} x ${item.qty} ${satuan}</small></div>
+                        <div><strong>Rp ${subtotal.toLocaleString()}</strong><br><small style="color:red; cursor:pointer;" onclick="hapusItem(${index})">[Hapus]</small></div>
+                    </li>`;
             });
     
             document.getElementById('list-keranjang').innerHTML = listHtml;
@@ -319,73 +310,54 @@
             document.getElementById('jml-keranjang').innerText = totalItem + " Item";
         }
     
-        // --- 3. FUNGSI CHECKOUT KE WHATSAPP ---
+        // --- 3. CHECKOUT WA (PESAN WHATSAPP) ---
         function checkoutWA() {
-            if (keranjang.length === 0) {
-                showToast("❌ Keranjang masih kosong kak!");
-                return;
-            }
-    
+            if (keranjang.length === 0) { showToast("❌ Keranjang masih kosong kak!"); return; }
+            
             let pesan = `Halo Admin BCC Fruit,%0A%0ASaya mau pesan:%0A--------------------------------%0A`;
             let totalAkhir = 0;
-    
+            
             keranjang.forEach(item => {
                 let subtotal = item.harga * item.qty;
                 totalAkhir += subtotal;
-                pesan += `- ${item.nama} (${item.qty}x) = Rp ${subtotal.toLocaleString('id-ID')}%0A`;
+                
+                // --- LOGIKA SATUAN (WHATSAPP) ---
+                let namaKecil = item.nama.toLowerCase();
+                let satuan = "kg"; 
+                
+                // Cek disini juga biar di WA tulisannya bener
+                if(namaKecil.includes("anggur") || namaKecil.includes("kelengkeng") || namaKecil.includes("belimbing")) {
+                    satuan = "pcs";
+                }
+                
+                pesan += `- ${item.nama} (${item.qty}${satuan}) = Rp ${subtotal.toLocaleString('id-ID')}%0A`;
             });
-    
+            
             pesan += `--------------------------------%0A*TOTAL BAYAR: Rp ${totalAkhir.toLocaleString('id-ID')}*%0A%0AMohon info pembayarannya ya. Terima kasih!`;
-    
             window.open(`https://wa.me/${nomorWA}?text=${pesan}`, '_blank');
         }
     
-        // --- 4. FUNGSI HAPUS ITEM ---
-        function hapusItem(index) {
-            keranjang.splice(index, 1); 
-            updateTampilanKeranjang(); 
-        }
+        // --- 4. LAINNYA ---
+        function hapusItem(index) { keranjang.splice(index, 1); updateTampilanKeranjang(); }
+        function bukaKeranjang() { document.getElementById('modalKeranjang').style.display = 'flex'; }
+        function tutupKeranjang() { document.getElementById('modalKeranjang').style.display = 'none'; }
     
-        // --- 5. FUNGSI BUKA/TUTUP POPUP KERANJANG ---
-        function bukaKeranjang() {
-            document.getElementById('modalKeranjang').style.display = 'flex';
-        }
-    
-        function tutupKeranjang() {
-            document.getElementById('modalKeranjang').style.display = 'none';
-        }
-    
-        // --- 6. FUNGSI LIHAT PRODUK LAINNYA (PERBAIKAN DISINI) ---
+        // --- 5. LOGIKA TOMBOL LIHAT & PERKECIL ---
         function bukaProduk() {
             var produkTersembunyi = document.querySelectorAll('.produk-extra');
-            
-            // Munculkan produk
-            produkTersembunyi.forEach(function(item) {
-                item.classList.remove('hidden'); 
-            });
-    
-            // Sembunyikan tombol biru, Munculkan tombol merah
+            produkTersembunyi.forEach(function(item) { item.classList.remove('hidden'); });
             document.getElementById('tombolLainnya').style.display = 'none';
             document.getElementById('tombolKecil').style.display = 'inline-block'; 
         }
     
-        // --- 7. FUNGSI PERKECIL PRODUK (INI YANG TADI HILANG) ---
         function tutupProduk() {
             var produkTersembunyi = document.querySelectorAll('.produk-extra');
-            
-            // Sembunyikan lagi produknya
-            produkTersembunyi.forEach(function(item) {
-                item.classList.add('hidden'); 
-            });
-    
-            // Kembalikan tombol seperti semula
+            produkTersembunyi.forEach(function(item) { item.classList.add('hidden'); });
             document.getElementById('tombolLainnya').style.display = 'inline-block';
             document.getElementById('tombolKecil').style.display = 'none';
-    
-            // Scroll sedikit ke atas agar rapi
             document.getElementById('galeri').scrollIntoView({behavior: 'smooth'});
         }
-    </script>   
+    </script> 
     </div>
 
 
