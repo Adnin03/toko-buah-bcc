@@ -425,3 +425,82 @@ ul.hours-list li { border-bottom: 1px dashed #eee; padding: 8px 0; display: flex
     opacity: 1;
     top: 50px; /* Efek sedikit turun ke bawah saat muncul */
 }
+
+/* =========================================
+   TAMBAHAN: AGAR RAPI DI HP (RESPONSIF)
+   ========================================= */
+
+   @media screen and (max-width: 768px) {
+
+    /* 1. PERBAIKAN MENU NAVBAR */
+    .nav-content {
+        flex-direction: column; /* Menu jadi tumpuk ke bawah */
+        gap: 15px;
+    }
+    
+    .nav-links {
+        gap: 15px; /* Jarak antar tulisan menu */
+        font-size: 0.9rem; /* Ukuran huruf sedikit dikecilkan */
+        flex-wrap: wrap; /* Agar menu tidak bablas ke samping */
+        justify-content: center;
+    }
+
+    /* 2. PERBAIKAN GAMBAR UTAMA (HERO) */
+    .hero-text h1 {
+        font-size: 1.8rem; /* Judul dikecilkan biar gak menuhin layar */
+        padding: 0 10px;
+    }
+    
+    .hero-text p {
+        font-size: 1rem;
+    }
+
+    /* 3. PERBAIKAN CONTAINER & KARTU */
+    .container {
+        width: 100%; /* Lebar penuh */
+        padding: 0 15px; /* Jarak pinggir dikurangi */
+        margin-top: -30px; /* Naikkan sedikit */
+    }
+
+    /* 4. PERBAIKAN GRID INFO (JAM BUKA & KONTAK) */
+    .info-grid {
+        grid-template-columns: 1fr; /* Paksa jadi 1 kolom ke bawah */
+        gap: 15px;
+    }
+
+    /* 5. PERBAIKAN GALERI PRODUK */
+    .gallery {
+        grid-template-columns: repeat(2, 1fr); /* Paksa 2 kolom di HP (Kanan-Kiri) */
+        gap: 10px;
+    }
+    
+    /* Kalau HP nya kecil banget (dibawah 400px), jadi 1 kolom saja */
+    @media screen and (max-width: 400px) {
+        .gallery {
+            grid-template-columns: 1fr; 
+        }
+    }
+
+    /* 6. PERBAIKAN GAMBAR PRODUK */
+    .card-buah img {
+        height: 150px; /* Tinggi gambar dikurangi biar gak terlalu panjang */
+    }
+
+    .info-buah h3 {
+        font-size: 1rem; /* Nama buah dikecilkan */
+    }
+
+    /* 7. PERBAIKAN POPUP KERANJANG */
+    .cart-content {
+        width: 95%; /* Lebar popup hampir full layar */
+        max-height: 80vh; /* Agar tidak kepotong kalau belanjaan banyak */
+    }
+
+    /* 8. POSISI TOMBOL MELAYANG */
+    .cart-float {
+        bottom: 15px;
+        right: 15px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
